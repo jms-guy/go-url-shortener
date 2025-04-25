@@ -23,7 +23,7 @@ func main() {
 
 	mux.HandleFunc("/", testHandle)
 
-	fmt.Println("Listening on port "+server.Addr)
+	fmt.Println("Listening on port ", server.Addr)
 	err := server.ListenAndServe()
 	log.Fatal(err)
 }
