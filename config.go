@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/jms-guy/go-url-shortener/shortener"
 	"github.com/jms-guy/go-url-shortener/store"
 )
@@ -15,6 +16,10 @@ type APIConfig struct {
 
 type urlRequest struct {
 	Url string `json:"url"`
+}
+
+func testHandle(w http.ResponseWriter, r *http.Request) {
+	respondWithError(w, 200, "Nothing here")
 }
 
 func (a *APIConfig) redirectHandle(w http.ResponseWriter, r *http.Request) {
@@ -28,8 +33,12 @@ func (a *APIConfig) redirectHandle(w http.ResponseWriter, r *http.Request) {
 
 	redirect, err := store.GetInitialUrl(shortUrl)
 	if err != nil {
-		log.Printf("Error retrieving initial url from database: %s", err)
-		respondWithError(w, 500, "Error getting url from database")
+		if err == redis.Nil {
+			respondWithError(w, 404, "URL not in database")
+		} else {
+			log.Printf("Error retrieving initial url for %s from database: %s", shortUrl, err)
+			respondWithError(w, 500, "Error accessing database")
+		}
 		return
 	}
 
@@ -54,13 +63,13 @@ func (a *APIConfig) shortenHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUrl := shortener.SetNewUrl(shortVersion)
-	err = store.SaveUrlMap(newUrl, intialUrl)
+	err = store.SaveUrlMap(shortVersion, intialUrl)
 	if err != nil {
 		log.Printf("Error saving data to redis database: %s", err)
 		respondWithError(w, 500, "Error accessing server database")
 		return
 	}
 
+	newUrl := shortener.SetNewUrl(shortVersion)
 	respondWithJSON(w, 200, urlRequest{Url: newUrl})
 }

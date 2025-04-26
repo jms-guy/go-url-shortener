@@ -28,7 +28,7 @@ func main() {
 		Db: *store.InitializeStore(),
 	}
 
-	/// mux.HandleFunc("/", testHandle)
+	mux.HandleFunc("/", testHandle)
 	mux.HandleFunc("POST /api/urls", api.shortenHandle)
 	mux.HandleFunc("GET /{shortUrl}", api.redirectHandle)
 

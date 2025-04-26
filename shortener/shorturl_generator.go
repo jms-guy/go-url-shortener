@@ -41,7 +41,5 @@ func GenerateShortLink(initialUrl string) string {
 
 func SetNewUrl(short string) string {
 	domain := os.Getenv("SERVER_DOMAIN")
-	port := os.Getenv("PORT")
-	url := fmt.Sprintf("%s:%v/%s", domain, port, short)
-	return url
+	return fmt.Sprintf("%s/%s", domain, short)
 }
