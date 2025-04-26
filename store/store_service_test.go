@@ -19,9 +19,11 @@ func TestInsertAndRetrieval(t *testing.T) {
 	short := "shorturl.com"
 	long := "longlonglongurl.com"
 
-	SaveUrlMap(short, long)
+	saveErr := SaveUrlMap(short, long)
 
-	retrievedUrl := GetInitialUrl(short)
+	retrievedUrl, err := GetInitialUrl(short)
 
+	assert.Equal(t, saveErr, nil)
 	assert.Equal(t, long, retrievedUrl)
+	assert.Equal(t, err, nil)
 }
